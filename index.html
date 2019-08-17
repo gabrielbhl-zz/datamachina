@@ -91,7 +91,7 @@
         
        
         var ctaLayer = new google.maps.KmlLayer({
-          url: './jundiai.kml',
+          url: 'https://gabrielbhl.github.io/datamachina/jundiai.kml',
           map: map
         });
        
@@ -137,7 +137,7 @@
                 distance += route.legs[i].distance.value;
             }
             summaryPanel.innerHTML += 'Distância total: ' + distance + '<br><br>';
-            console.log(response);
+      
           } else {
             window.alert('Directions request failed due to ' + status);
           }
