@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <title>DataMachina</title>
+    <style>
+      #right-panel {
+        font-family: 'Roboto','sans-serif';
+        line-height: 30px;
+        padding-left: 10px;
+      }
+
+      #right-panel select, #right-panel input {
+        font-size: 15px;
+      }
+
+      #right-panel select {
+        width: 100%;
+      }
+
+      #right-panel i {
+        font-size: 12px;
+      }
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      #map {
+        height: 100%;
+        float: left;
+        width: 70%;
+        height: 100%;
+      }
+      #right-panel {
+        margin: 20px;
+        border-width: 2px;
+        width: 20%;
+        height: 400px;
+        float: left;
+        text-align: left;
+        padding-top: 0;
+      }
+      #directions-panel {
+        margin-top: 10px;
+        background-color: #FFEE77;
+        padding: 10px;
+        overflow: scroll;
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <div id="right-panel">
+    <div>
+    <b>Início:</b>
+    <select id="start">
+      <option value="Jundiai, SP">Jundiai, SP</option>
+    </select>
+    <br>
+    <b>Passando por:</b> <br>
+    <i>(Ctrl+Click ou Cmd+Click para selecionar vários)</i> <br>
+    <select multiple id="waypoints">
+      <option value="-23.188062, -46.903580">p_1</option>
+      <option value="-23.180870, -46.898134">p_3</option>
+      <option value="-23.180568, -46.896678">p_4</option>
+      <option value="-23.186950, -46.903697">p_2</option>
+      <option value="-23.183620, -46.883795">p_5</option>
+      <option value="-23.184843, -46.883945">p_6</option>
+    </select>
+    <br>
+    <b>Final:</b>
+    <select id="end">
+      <option value="Jundiai, SP">Jundiai, SP</option>
+    </select>
+    <br>
+      <input type="submit" id="submit">
+    </div>
+    <div id="directions-panel"></div>
+    </div>
+    <script>
+      function initMap() {
+        var directionsService = new google.maps.DirectionsService;
+        var directionsDisplay = new google.maps.DirectionsRenderer;
+        var map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 16,
+          center: {lat: -23.1857076, lng: -46.8978057}
+        });
+        
+       
+        var ctaLayer = new google.maps.KmlLayer({
+          url: './jundiai.kml',
+          map: map
+        });
+       
+        directionsDisplay.setMap(map);
+        
+        document.getElementById('submit').addEventListener('click', function() {
+          calculateAndDisplayRoute(directionsService, directionsDisplay);
+        });
+      }
+
+      function calculateAndDisplayRoute(directionsService, directionsDisplay) {
+       
+        var waypts = [];
+        var checkboxArray = document.getElementById('waypoints');
+        if(checkboxArray.length > 2) {
+            
+        }
+        for (var i = 0; i < checkboxArray.length; i++) {
+          if (checkboxArray.options[i].selected) {
+            waypts.push({
+              location: checkboxArray[i].value,
+              stopover: true
+            });
+          }
+        }
+        
+        //FUNÇÃO QUE RETORNA DISTÂNCIA DE UMA ROTA
+        directionsService.route({
+          origin: document.getElementById('start').value,
+          destination: document.getElementById('end').value,
+          waypoints: waypts,
+          optimizeWaypoints: true,        
+          travelMode: 'WALKING'
+        }, function(response, status) {
+          if (status === 'OK') {
+            directionsDisplay.setDirections(response);
+            var route = response.routes[0];
+            var summaryPanel = document.getElementById('directions-panel');
+            summaryPanel.innerHTML = '';
+            // For each route, display summary information.
+            let distance = 0;
+            for (var i = 0; i < route.legs.length; i++) {
+                distance += route.legs[i].distance.value;
+            }
+            summaryPanel.innerHTML += 'Distância total: ' + distance + '<br><br>';
+            console.log(response);
+          } else {
+            window.alert('Directions request failed due to ' + status);
+          }
+        });
+      }
+    </script>
+    <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAgi3Ca6bLYYCaTn8OrZ1Lp-orRabOP2BA&callback=initMap">
+    </script>
+  </body>
+</html>
